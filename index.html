@@ -245,11 +245,13 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         async function initializeFirebase() {
+            if (!firebaseConfig) {
+                console.error("Firebase configuration is missing. This app must be run within a valid environment.");
+                document.getElementById('loading').innerHTML = `<p class="text-red-500">Error: Missing Firebase configuration. Please load this app in a supported collaborative environment.</p>`;
+                return;
+            }
+
             try {
-                if (!firebaseConfig) {
-                    throw new Error("Firebase configuration is missing.");
-                }
-                
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
