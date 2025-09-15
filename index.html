@@ -668,7 +668,7 @@
         async function removeMeal(id) {
             try {
                 const updatedMeals = (data.meals || []).filter(m => m.id !== id);
-                await updateMessData({ ...data, meals: updatedMeals });
+                await updateMessData({ ...data, updatedMeals: updatedMeals });
             } catch (e) {
                 console.error("Error removing meal:", e);
             }
