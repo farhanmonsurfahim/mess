@@ -30,22 +30,10 @@
         <h1 class="text-3xl font-bold text-center text-gray-900">Mess Profile</h1>
         <p class="text-center text-gray-600">Create a new profile or load an existing one to manage your mess.</p>
         
-        <!-- Important Warning -->
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl relative">
-            <p class="font-bold">Important!</p>
-            <p class="block sm:inline">Remember your Profile ID. If you lose it, you won't be able to access your data again.</p>
-        </div>
-
         <div class="space-y-4">
-            <form id="create-profile-form" class="space-y-4">
-                <div>
-                    <label for="manager-name-input" class="block text-sm font-medium text-gray-700">Your Name</label>
-                    <input type="text" id="manager-name-input" placeholder="e.g., Jane Doe" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200" required>
-                </div>
-                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
-                    Create New Profile
-                </button>
-            </form>
+            <button id="create-profile-btn" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                Create New Profile
+            </button>
             <div class="relative flex items-center">
                 <div class="flex-grow border-t border-gray-300"></div>
                 <span class="flex-shrink mx-4 text-gray-400 text-sm">or</span>
@@ -68,9 +56,7 @@
         <div class="w-full lg:w-1/3 p-6 md:p-8 bg-gray-50 flex flex-col space-y-6">
             <h1 class="text-3xl font-bold text-center text-gray-900">Mess Management</h1>
             <div id="user-info" class="p-4 bg-white rounded-xl shadow-sm border border-gray-200">
-                <p class="text-sm font-semibold text-gray-700">Profile Manager:</p>
-                <p id="manager-name-display" class="text-xl font-bold text-gray-900"></p>
-                <p class="text-sm font-semibold text-gray-700 mt-2">Your Profile ID:</p>
+                <p class="text-sm font-semibold text-gray-700">Your Profile ID:</p>
                 <code id="user-id-display" class="block mt-2 bg-gray-100 p-3 rounded-lg text-xs font-mono break-all text-gray-600">Loading...</code>
                 <p class="mt-2 text-xs text-gray-500">Share this ID with others to collaborate on the mess data.</p>
                 <button id="change-profile-btn" class="mt-4 w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-all duration-200">
@@ -153,19 +139,11 @@
 
             <!-- Add Daily Cost Form -->
             <div class="p-6 bg-gray-50 rounded-xl shadow-md">
-                <h2 class="text-xl font-semibold mb-4 text-gray-800">Add Daily Bazar Cost</h2>
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Add Daily Cost</h2>
                 <form id="cost-form" class="space-y-4">
                     <div>
-                        <label for="cost-date" class="block text-sm font-medium text-gray-700">Date</label>
-                        <input type="date" id="cost-date" name="costDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200" required>
-                    </div>
-                    <div>
-                        <label for="bazar-cost-amount" class="block text-sm font-medium text-gray-700">Bazar Cost Amount</label>
-                        <input type="number" id="bazar-cost-amount" name="bazarCostAmount" placeholder="e.g., 250" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200" required>
-                    </div>
-                    <div>
-                        <label for="cost-note" class="block text-sm font-medium text-gray-700">Note</label>
-                        <input type="text" id="cost-note" name="costNote" placeholder="e.g., Groceries for the week" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200">
+                        <label for="cost-amount" class="block text-sm font-medium text-gray-700">Cost Amount</label>
+                        <input type="number" id="cost-amount" name="costAmount" placeholder="e.g., 250" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200" required>
                     </div>
                     <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200">
                         Add Cost
@@ -180,20 +158,12 @@
             <div class="bg-gray-50 rounded-xl shadow-md p-6">
                 <h2 class="text-xl font-semibold mb-4 text-gray-800">Monthly Summary</h2>
                 <div class="grid grid-cols-2 gap-4 text-center text-gray-800 mb-6">
-                    <div class="bg-green-100 p-4 rounded-xl shadow-sm">
-                        <p class="text-sm font-medium">Total Deposit</p>
-                        <p id="total-deposit-amount" class="text-2xl font-bold mt-1">0</p>
-                    </div>
-                    <div class="bg-purple-100 p-4 rounded-xl shadow-sm">
-                        <p class="text-sm font-medium">Total Members</p>
-                        <p id="total-members-count" class="text-2xl font-bold mt-1">0</p>
-                    </div>
                     <div class="bg-blue-100 p-4 rounded-xl shadow-sm">
                         <p class="text-sm font-medium">Total Meals</p>
                         <p id="total-meals-count" class="text-2xl font-bold mt-1">0</p>
                     </div>
                     <div class="bg-red-100 p-4 rounded-xl shadow-sm">
-                        <p class="text-sm font-medium">Total Bazar Cost</p>
+                        <p class="text-sm font-medium">Total Cost</p>
                         <p id="total-cost" class="text-2xl font-bold mt-1">0</p>
                     </div>
                     <div class="bg-green-100 p-4 rounded-xl shadow-sm col-span-2">
@@ -208,14 +178,6 @@
                 <h2 class="text-xl font-semibold mb-4 text-gray-800">Member Balances</h2>
                 <div id="member-balances" class="space-y-3">
                     <p class="text-gray-500">Add members to see balances.</p>
-                </div>
-            </div>
-
-            <!-- Daily Costs List -->
-            <div class="bg-gray-50 rounded-xl shadow-md p-6">
-                <h2 class="text-xl font-semibold mb-4 text-gray-800">Daily Bazar Costs</h2>
-                <div id="daily-costs-list" class="space-y-3">
-                    <p class="text-gray-500">No costs recorded yet.</p>
                 </div>
             </div>
 
@@ -252,13 +214,13 @@
     <script type="module">
         import { initializeApp, setLogLevel } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc, collection, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, setDoc, collection } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
         // Set log level to debug for Firestore
         setLogLevel('debug');
 
         // --- Firebase Initialization ---
-        let app, auth, db, userId, currentProfileId, messId, data;
+        let app, auth, db, userId, currentProfileId, messDataRef, currentMonthDocId, data;
         let isAuthReady = false;
         let selectedDate = new Date().toISOString().slice(0, 10);
 
@@ -290,9 +252,9 @@
                         userId = user.uid;
                         isAuthReady = true;
                         
-                        messId = localStorage.getItem('mess_profile_id');
-                        if (messId) {
-                            startAppWithProfile(messId);
+                        currentProfileId = localStorage.getItem('mess_profile_id');
+                        if (currentProfileId) {
+                            startAppWithProfile(currentProfileId);
                         } else {
                             showProfileManager();
                         }
@@ -327,65 +289,53 @@
             document.getElementById('app').classList.remove('hidden');
         }
 
-        async function startAppWithProfile(profileId, managerName = null) {
+        async function startAppWithProfile(profileId) {
             if (!isAuthReady || !userId) {
                 console.error("Authentication not ready. Cannot start app.");
                 return;
             }
 
-            messId = profileId;
-            localStorage.setItem('mess_profile_id', messId);
-            
+            currentProfileId = profileId;
+            localStorage.setItem('mess_profile_id', currentProfileId);
+            document.getElementById('user-id-display').textContent = currentProfileId;
+
             const now = new Date();
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
-            const initialMonthDocId = `${year}-${month}`;
-
+            currentMonthDocId = `${year}-${month}`;
+            
             populateMonthSelector();
-            startRealtimeListener(initialMonthDocId, managerName);
+            startRealtimeListener(currentMonthDocId);
 
             showAppUI();
         }
 
         // --- Firestore Data Structure and Listeners ---
-        function startRealtimeListener(monthDocId, managerName = null) {
-            if (!isAuthReady || !messId) return;
+        function startRealtimeListener(monthDocId) {
+            if (!isAuthReady || !currentProfileId) return;
 
-            // Use a unique document ID that combines the mess ID and the month
-            currentProfileId = `${messId}_${monthDocId}`;
-            const docRef = doc(collection(db, `artifacts/${appId}/public/data/mess_data`), currentProfileId);
-            
-            // Check if document exists and initialize if not
-            getDoc(docRef).then(docSnap => {
-                if (!docSnap.exists()) {
-                    setDoc(docRef, { 
-                        managerName: managerName,
-                        members: [], 
-                        meals: [], 
-                        dailyCosts: [], 
-                        deposits: [] 
-                    });
-                }
-            });
+            // Use the correct Firestore path to ensure permission rules are met
+            messDataRef = doc(collection(db, `artifacts/${appId}/users/${userId}/mess_data`), currentProfileId);
 
-            onSnapshot(docRef, (docSnap) => {
-                data = docSnap.exists() ? docSnap.data() : { members: [], meals: [], dailyCosts: [], deposits: [] };
+            onSnapshot(messDataRef, (docSnap) => {
+                data = docSnap.exists() ? docSnap.data() : { members: [], meals: [], dailyCosts: [] };
                 
                 // Show the main UI and render the current state.
+                showAppUI();
                 renderUI(data);
                 renderTickSystem(data);
                 
             }, (error) => {
-                console.error("Error listening to document:", error);
-                const appDiv = document.getElementById('app');
-                const loadingDiv = document.getElementById('loading');
-                
-                if (appDiv) appDiv.classList.add('hidden');
-                if (loadingDiv) {
-                    loadingDiv.classList.remove('hidden');
-                    loadingDiv.innerHTML = `<p class="text-red-500">Error: Could not load data. Check the console for details.</p>`;
-                }
-            });
+            console.error("Error listening to document:", error);
+            const appDiv = document.getElementById('app');
+            const loadingDiv = document.getElementById('loading');
+            
+            if (appDiv) appDiv.classList.add('hidden');
+            if (loadingDiv) {
+                loadingDiv.classList.remove('hidden');
+                loadingDiv.innerHTML = `<p class="text-red-500">Error: Could not load data. Check the console for details.</p>`;
+            }
+        });
         }
 
         // --- UI Rendering Functions ---
@@ -393,19 +343,11 @@
             const membersList = document.getElementById('members-list');
             const mealsTableBody = document.getElementById('meals-table-body');
             const depositMemberSelect = document.getElementById('deposit-member-id');
-            const totalDepositAmount = document.getElementById('total-deposit-amount');
-            const totalMembersCount = document.getElementById('total-members-count');
             const totalMealsCount = document.getElementById('total-meals-count');
             const totalCostDisplay = document.getElementById('total-cost');
             const mealRateDisplay = document.getElementById('meal-rate');
             const memberBalancesDiv = document.getElementById('member-balances');
-            const managerNameDisplay = document.getElementById('manager-name-display');
-            const userIdDisplay = document.getElementById('user-id-display');
 
-            // Set the manager's name and profile ID
-            managerNameDisplay.textContent = data.managerName || 'N/A';
-            userIdDisplay.textContent = messId;
-            
             // Render members and select options
             membersList.innerHTML = '';
             depositMemberSelect.innerHTML = '<option value="">Select a member</option>';
@@ -461,11 +403,10 @@
                     </tr>
                 `;
             }
+            totalMealsCount.textContent = data.meals ? data.meals.length : 0;
             
             // Calculate and display summary
-            const { totalMeals, totalCost, totalDeposit, mealRate, balances } = calculateMonthlySummary(data);
-            totalDepositAmount.textContent = totalDeposit.toFixed(2);
-            totalMembersCount.textContent = data.members ? data.members.length : 0;
+            const { totalMeals, totalCost, mealRate, balances } = calculateMonthlySummary(data);
             totalMealsCount.textContent = totalMeals;
             totalCostDisplay.textContent = totalCost.toFixed(2);
             mealRateDisplay.textContent = mealRate.toFixed(2);
@@ -496,36 +437,6 @@
                 });
             } else {
                  memberBalancesDiv.innerHTML = '<p class="text-gray-500">Add members to see balances.</p>';
-            }
-
-            // Render daily costs list
-            renderDailyCosts(data);
-        }
-
-        function renderDailyCosts(data) {
-            const dailyCostsList = document.getElementById('daily-costs-list');
-            dailyCostsList.innerHTML = '';
-            if (data.dailyCosts && data.dailyCosts.length > 0) {
-                const sortedCosts = data.dailyCosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-                sortedCosts.forEach(cost => {
-                    const costDate = new Date(cost.date).toLocaleDateString();
-                    dailyCostsList.innerHTML += `
-                        <div class="p-4 bg-white rounded-lg shadow-sm flex flex-col space-y-1">
-                            <div class="flex items-center justify-between">
-                                <p class="text-sm font-semibold text-gray-900">Amount: ${cost.amount.toFixed(2)}</p>
-                                <p class="text-xs text-gray-500">${costDate}</p>
-                            </div>
-                            <p class="text-xs text-gray-600">${cost.note || 'No note'}</p>
-                            <button onclick="removeCost('${cost.date}', ${cost.amount}, '${cost.note}')" class="text-red-500 hover:text-red-700 transition-colors duration-200 mt-2 self-end">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 11-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                        </div>
-                    `;
-                });
-            } else {
-                 dailyCostsList.innerHTML = '<p class="text-gray-500">No costs recorded yet.</p>';
             }
         }
         
@@ -571,10 +482,10 @@
         
         // --- Data Manipulation Functions ---
         async function updateMessData(newData) {
-            if (!isAuthReady || !currentProfileId) return;
+            if (!isAuthReady || !currentProfileId || !userId) return;
             try {
-                // Use the correct Firestore path for public data
-                const messDocRef = doc(collection(db, `artifacts/${appId}/public/data/mess_data`), currentProfileId);
+                // Use the correct Firestore path to ensure permission rules are met
+                const messDocRef = doc(collection(db, `artifacts/${appId}/users/${userId}/mess_data`), currentProfileId);
                 await setDoc(messDocRef, newData);
             } catch (e) {
                 console.error("Error updating document:", e);
@@ -585,7 +496,7 @@
         async function addMember(name, memberId) {
             try {
                 const members = data.members || [];
-                const newMember = { id: memberId, name: name, deposit: 0, meals: 0, totalMealCost: 0 };
+                const newMember = { id: memberId, name: name, deposit: 0 };
 
                 const existingMemberIndex = members.findIndex(m => m.id === memberId);
                 if (existingMemberIndex !== -1) {
@@ -614,10 +525,10 @@
             }
         }
         
-        async function addDailyCost(amount, note, date) {
+        async function addDailyCost(amount) {
             try {
                 const dailyCosts = data.dailyCosts || [];
-                dailyCosts.push({ date: new Date(date).toISOString(), amount: amount, note: note });
+                dailyCosts.push({ date: new Date().toISOString(), amount: amount });
                 
                 await updateMessData({ ...data, dailyCosts: dailyCosts });
             } catch (e) {
@@ -668,23 +579,9 @@
         async function removeMeal(id) {
             try {
                 const updatedMeals = (data.meals || []).filter(m => m.id !== id);
-                await updateMessData({ ...data, updatedMeals: updatedMeals });
+                await updateMessData({ ...data, meals: updatedMeals });
             } catch (e) {
                 console.error("Error removing meal:", e);
-            }
-        }
-
-        async function removeCost(date, amount, note) {
-            try {
-                const dailyCosts = data.dailyCosts || [];
-                const updatedCosts = dailyCosts.filter(cost => 
-                    !(new Date(cost.date).toISOString() === new Date(date).toISOString() && 
-                    cost.amount === amount && 
-                    cost.note === note)
-                );
-                await updateMessData({ ...data, dailyCosts: updatedCosts });
-            } catch (e) {
-                console.error("Error removing cost:", e);
             }
         }
         
@@ -696,9 +593,8 @@
             // 1. Calculate total meals
             const totalMeals = meals.length;
 
-            // 2. Calculate total cost and deposits
+            // 2. Calculate total cost
             const totalCost = dailyCosts.reduce((sum, cost) => sum + cost.amount, 0);
-            const totalDeposit = members.reduce((sum, member) => sum + (member.deposit || 0), 0);
 
             // 3. Calculate meal rate
             const mealRate = totalMeals > 0 ? totalCost / totalMeals : 0;
@@ -719,7 +615,7 @@
                 member.totalMealCost = totalMealCost;
             });
             
-            return { totalMeals, totalCost, totalDeposit, mealRate, balances };
+            return { totalMeals, totalCost, mealRate, balances };
         }
         
         function populateMonthSelector() {
@@ -737,34 +633,17 @@
                 selector.appendChild(option);
             }
             const dateInput = document.getElementById('meal-date-selector');
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            selector.value = `${year}-${month}`;
-
+            selector.value = currentMonthDocId;
             selector.addEventListener('change', (e) => {
-                const newMonth = e.target.value;
-                startRealtimeListener(newMonth);
-                // Reset meal date selector to today's date
+                currentMonthDocId = e.target.value;
                 dateInput.value = new Date().toISOString().slice(0, 10);
-                selectedDate = dateInput.value;
+                startRealtimeListener(currentMonthDocId);
             });
-
             dateInput.value = selectedDate;
             dateInput.addEventListener('change', (e) => {
                 selectedDate = e.target.value;
                 renderTickSystem(data);
             });
-        }
-        
-        // --- New function to generate a simpler ID ---
-        function generateSimpleId(length = 6) {
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let result = '';
-            for (let i = 0; i < length; i++) {
-                result += characters.charAt(Math.floor(Math.random() * characters.length));
-            }
-            return result;
         }
 
         // --- Event Listeners ---
@@ -791,20 +670,16 @@
         
         document.getElementById('cost-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            const costDate = document.getElementById('cost-date').value;
-            const costAmount = parseFloat(document.getElementById('bazar-cost-amount').value);
-            const costNote = document.getElementById('cost-note').value;
-            if (costDate && costAmount) {
-                addDailyCost(costAmount, costNote, costDate);
+            const costAmount = parseFloat(document.getElementById('cost-amount').value);
+            if (costAmount) {
+                addDailyCost(costAmount);
                 this.reset();
             }
         });
 
-        document.getElementById('create-profile-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const managerName = document.getElementById('manager-name-input').value;
-            const newProfileId = generateSimpleId();
-            startAppWithProfile(newProfileId, managerName);
+        document.getElementById('create-profile-btn').addEventListener('click', () => {
+            const newProfileId = crypto.randomUUID();
+            startAppWithProfile(newProfileId);
         });
 
         document.getElementById('load-profile-form').addEventListener('submit', (e) => {
@@ -824,7 +699,6 @@
         // Expose functions to the global scope for use in `onclick` attributes
         window.removeMember = removeMember;
         window.removeMeal = removeMeal;
-        window.removeCost = removeCost;
         window.toggleMeal = toggleMeal;
 
         // Start the application
