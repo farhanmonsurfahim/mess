@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mess Management System</title>
+    <title>Collaborative Mess Management System</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font -->
@@ -20,6 +20,7 @@
 </head>
 <body class="bg-gray-100">
 
+    <!-- Loading screen -->
     <div id="loading" class="text-center">
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mx-auto"></div>
         <p class="mt-4 text-lg text-gray-600">Loading...</p>
@@ -51,13 +52,22 @@
         </div>
     </div>
 
+    <!-- Main App UI -->
     <div id="app" class="hidden w-full max-w-6xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden flex flex-col lg:flex-row">
         <!-- Left Panel: User Info & Forms -->
         <div class="w-full lg:w-1/3 p-6 md:p-8 bg-gray-50 flex flex-col space-y-6">
             <h1 class="text-3xl font-bold text-center text-gray-900">Mess Management</h1>
             <div id="user-info" class="p-4 bg-white rounded-xl shadow-sm border border-gray-200">
                 <p class="text-sm font-semibold text-gray-700">Your Profile ID:</p>
-                <code id="user-id-display" class="block mt-2 bg-gray-100 p-3 rounded-lg text-xs font-mono break-all text-gray-600">Loading...</code>
+                <div class="flex items-center space-x-2">
+                    <code id="user-id-display" class="block mt-2 bg-gray-100 p-3 rounded-lg text-xs font-mono break-all text-gray-600 flex-grow">Loading...</code>
+                    <button id="copy-id-btn" class="mt-2 p-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                          <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3.993 3.993 0 00-1.823-1.017A3.987 3.987 0 0010 1a3.993 3.993 0 00-1.823.983A3.993 3.993 0 006 3z" />
+                        </svg>
+                    </button>
+                </div>
                 <p class="mt-2 text-xs text-gray-500">Share this ID with others to collaborate on the mess data.</p>
                 <button id="change-profile-btn" class="mt-4 w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-all duration-200">
                     Change Profile
@@ -209,6 +219,10 @@
             </div>
         </div>
     </div>
+    <!-- Custom Dialog for Messages -->
+    <div id="message-dialog" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 p-4 rounded-lg shadow-lg hidden transition-opacity duration-300 opacity-0 bg-green-500 text-white font-medium">
+        Message
+    </div>
 
     <!-- Firebase SDKs -->
     <script type="module">
@@ -220,29 +234,22 @@
         setLogLevel('debug');
 
         // --- Firebase Initialization ---
-        let app, auth, db, userId, currentProfileId, messDataRef, currentMonthDocId, data;
+        let app, auth, db, userId, currentProfileId, messDataRef, data;
         let isAuthReady = false;
         let selectedDate = new Date().toISOString().slice(0, 10);
-
-        // Your web app's Firebase configuration
-        const localFirebaseConfig = {
-            apiKey: "AIzaSyBlOyceVDZPihaL7JsHtFakjvtoPQjSLlE",
-            authDomain: "mess-49499.firebaseapp.com",
-            projectId: "mess-49499",
-            storageBucket: "mess-49499.firebasestorage.app",
-            messagingSenderId: "793949675740",
-            appId: "1:793949675740:web:ccd3ae3b0ca339d605d419"
-        };
-        const localInitialAuthToken = null;
-        const localAppId = 'mess-49499';
-
-        // 1. Get Firebase config from global variables or use local config as fallback
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : localFirebaseConfig;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : localInitialAuthToken;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : localAppId;
+        let selectedMonth = new Date().toISOString().slice(0, 7);
+        
+        // Use global variables for Firebase configuration provided by the Canvas environment
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         async function initializeFirebase() {
             try {
+                if (!firebaseConfig) {
+                    throw new Error("Firebase configuration is missing.");
+                }
+                
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -277,6 +284,7 @@
             }
         }
 
+        // --- UI State Management ---
         function showProfileManager() {
             document.getElementById('loading').classList.add('hidden');
             document.getElementById('profile-manager').classList.remove('hidden');
@@ -299,25 +307,23 @@
             localStorage.setItem('mess_profile_id', currentProfileId);
             document.getElementById('user-id-display').textContent = currentProfileId;
 
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            currentMonthDocId = `${year}-${month}`;
-            
             populateMonthSelector();
-            startRealtimeListener(currentMonthDocId);
+            startRealtimeListener(currentProfileId, selectedMonth);
 
             showAppUI();
         }
 
         // --- Firestore Data Structure and Listeners ---
-        function startRealtimeListener(monthDocId) {
-            if (!isAuthReady || !currentProfileId) return;
+        function startRealtimeListener(profileId, month) {
+            if (!isAuthReady || !profileId) return;
 
-            // Use the correct Firestore path to ensure permission rules are met
-            messDataRef = doc(collection(db, `artifacts/${appId}/users/${userId}/mess_data`), currentProfileId);
+            // Use the public path for collaborative data
+            const messDataCollectionRef = collection(db, `artifacts/${appId}/public/data/mess_data`);
+            messDataRef = doc(messDataCollectionRef, profileId);
+            
+            const monthDataRef = doc(messDataRef, "monthlyData", month);
 
-            onSnapshot(messDataRef, (docSnap) => {
+            onSnapshot(monthDataRef, (docSnap) => {
                 data = docSnap.exists() ? docSnap.data() : { members: [], meals: [], dailyCosts: [] };
                 
                 // Show the main UI and render the current state.
@@ -326,16 +332,16 @@
                 renderTickSystem(data);
                 
             }, (error) => {
-            console.error("Error listening to document:", error);
-            const appDiv = document.getElementById('app');
-            const loadingDiv = document.getElementById('loading');
-            
-            if (appDiv) appDiv.classList.add('hidden');
-            if (loadingDiv) {
-                loadingDiv.classList.remove('hidden');
-                loadingDiv.innerHTML = `<p class="text-red-500">Error: Could not load data. Check the console for details.</p>`;
-            }
-        });
+                console.error("Error listening to document:", error);
+                const appDiv = document.getElementById('app');
+                const loadingDiv = document.getElementById('loading');
+                
+                if (appDiv) appDiv.classList.add('hidden');
+                if (loadingDiv) {
+                    loadingDiv.classList.remove('hidden');
+                    loadingDiv.innerHTML = `<p class="text-red-500">Error: Could not load data. Check the console for details.</p>`;
+                }
+            });
         }
 
         // --- UI Rendering Functions ---
@@ -482,14 +488,16 @@
         
         // --- Data Manipulation Functions ---
         async function updateMessData(newData) {
-            if (!isAuthReady || !currentProfileId || !userId) return;
+            if (!isAuthReady || !currentProfileId) return;
             try {
-                // Use the correct Firestore path to ensure permission rules are met
-                const messDocRef = doc(collection(db, `artifacts/${appId}/users/${userId}/mess_data`), currentProfileId);
-                await setDoc(messDocRef, newData);
+                // Use the correct public Firestore path to ensure permission rules are met
+                const messDocRef = doc(collection(db, `artifacts/${appId}/public/data/mess_data`), currentProfileId);
+                const monthDataRef = doc(messDocRef, "monthlyData", selectedMonth);
+                
+                await setDoc(monthDataRef, newData);
             } catch (e) {
                 console.error("Error updating document:", e);
-                // In a real app, you would show a message to the user here.
+                showMessage("Error updating data. See console.", "red");
             }
         }
 
@@ -506,8 +514,10 @@
                 }
                 
                 await updateMessData({ ...data, members: members });
+                showMessage("Member saved successfully!", "green");
             } catch (e) {
                 console.error("Error adding member:", e);
+                showMessage("Error adding member.", "red");
             }
         }
         
@@ -520,8 +530,10 @@
                 }
                 
                 await updateMessData({ ...data, members: members });
+                showMessage("Deposit added successfully!", "green");
             } catch (e) {
                 console.error("Error adding deposit:", e);
+                showMessage("Error adding deposit.", "red");
             }
         }
         
@@ -531,8 +543,10 @@
                 dailyCosts.push({ date: new Date().toISOString(), amount: amount });
                 
                 await updateMessData({ ...data, dailyCosts: dailyCosts });
+                showMessage("Cost added successfully!", "green");
             } catch (e) {
                 console.error("Error adding daily cost:", e);
+                showMessage("Error adding cost.", "red");
             }
         }
 
@@ -540,8 +554,10 @@
             try {
                 const updatedMembers = (data.members || []).filter(m => m.id !== id);
                 await updateMessData({ ...data, members: updatedMembers });
+                showMessage("Member removed successfully!", "green");
             } catch (e) {
                 console.error("Error removing member:", e);
+                showMessage("Error removing member.", "red");
             }
         }
         
@@ -559,6 +575,7 @@
                 if (existingMealIndex !== -1) {
                     // Meal exists, remove it
                     meals.splice(existingMealIndex, 1);
+                    showMessage("Meal removed.", "green");
                 } else {
                     // Meal does not exist, add it
                     const newMeal = {
@@ -568,23 +585,28 @@
                         date: new Date(mealDate).toISOString()
                     };
                     meals.push(newMeal);
+                    showMessage("Meal added!", "green");
                 }
 
                 await updateMessData({ ...data, meals: meals });
             } catch (e) {
                 console.error("Error toggling meal:", e);
+                showMessage("Error toggling meal.", "red");
             }
         }
 
         async function removeMeal(id) {
             try {
                 const updatedMeals = (data.meals || []).filter(m => m.id !== id);
-                await updateMessData({ ...data, meals: updatedMeals });
+                await updateMessData({ ...data, updatedMeals: updatedMeals });
+                showMessage("Meal removed successfully!", "green");
             } catch (e) {
                 console.error("Error removing meal:", e);
+                showMessage("Error removing meal.", "red");
             }
         }
         
+        // --- Calculation Functions ---
         function calculateMonthlySummary(data) {
             const meals = data.meals || [];
             const dailyCosts = data.dailyCosts || [];
@@ -618,6 +640,7 @@
             return { totalMeals, totalCost, mealRate, balances };
         }
         
+        // --- UI Utility Functions ---
         function populateMonthSelector() {
             const selector = document.getElementById('month-selector');
             const today = new Date();
@@ -626,24 +649,39 @@
                 const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
+                const monthKey = `${year}-${month}`;
                 const monthName = date.toLocaleString('default', { month: 'long' });
                 const option = document.createElement('option');
-                option.value = `${year}-${month}`;
+                option.value = monthKey;
                 option.textContent = `${monthName} ${year}`;
+                if (monthKey === selectedMonth) {
+                    option.selected = true;
+                }
                 selector.appendChild(option);
             }
             const dateInput = document.getElementById('meal-date-selector');
-            selector.value = currentMonthDocId;
             selector.addEventListener('change', (e) => {
-                currentMonthDocId = e.target.value;
-                dateInput.value = new Date().toISOString().slice(0, 10);
-                startRealtimeListener(currentMonthDocId);
+                selectedMonth = e.target.value;
+                if (currentProfileId) {
+                    startRealtimeListener(currentProfileId, selectedMonth);
+                }
             });
             dateInput.value = selectedDate;
             dateInput.addEventListener('change', (e) => {
                 selectedDate = e.target.value;
                 renderTickSystem(data);
             });
+        }
+        
+        function showMessage(message, color) {
+            const dialog = document.getElementById('message-dialog');
+            dialog.textContent = message;
+            dialog.classList.remove('hidden', 'bg-red-500', 'bg-green-500', 'bg-orange-500');
+            dialog.classList.add(`bg-${color}-500`, 'opacity-100');
+            setTimeout(() => {
+                dialog.classList.remove('opacity-100');
+                dialog.classList.add('opacity-0', 'hidden');
+            }, 3000);
         }
 
         // --- Event Listeners ---
@@ -693,6 +731,24 @@
         document.getElementById('change-profile-btn').addEventListener('click', () => {
             localStorage.removeItem('mess_profile_id');
             showProfileManager();
+        });
+
+        document.getElementById('copy-id-btn').addEventListener('click', () => {
+            const profileId = document.getElementById('user-id-display').textContent;
+            if (profileId) {
+                try {
+                    const tempInput = document.createElement('input');
+                    tempInput.value = profileId;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    showMessage("Profile ID copied to clipboard!", "green");
+                } catch (e) {
+                    console.error("Failed to copy:", e);
+                    showMessage("Failed to copy Profile ID.", "red");
+                }
+            }
         });
 
 
