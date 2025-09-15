@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mess Management System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font -->
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            @apply bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4;
+        }
+        .meal-tick {
+            @apply w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 cursor-pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div id="loading" class="text-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mx-auto"></div>
+        <p class="mt-4 text-lg text-gray-600">Loading...</p>
+    </div>
+
+    <!-- Profile Management UI -->
+    <div id="profile-manager" class="hidden w-full max-w-lg mx-auto bg-white shadow-xl rounded-2xl p-6 md:p-8 space-y-6">
+        <h1 class="text-3xl font-bold text-center text-gray-900">Mess Profile</h1>
+        <p class="text-center text-gray-600">Create a new profile or load an existing one to manage your mess.</p>
+        
+        <div class="space-y-4">
+            <button id="create-profile-btn" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                Create New Profile
+            </button>
+            <div class="relative flex items-center">
+                <div class="flex-grow border-t border-gray-300"></div>
+                <span class="flex-shrink mx-4 text-gray-400 text-sm">or</span>
+                <div class="flex-grow border-t border-gray-300"></div>
+            </div>
+            <form id="load-profile-form" class="space-y-4">
+                <div>
+                    <label for="profile-id-input" class="block text-sm font-medium text-gray-700">Enter Profile ID</label>
+                    <input type="text" id="profile-id-input" placeholder="Paste your unique ID here" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200" required>
+                </div>
+                <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                    Load Profile
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="app" class="hidden w-full max-w-6xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden flex flex-col lg:flex-row">
+        <!-- Left Panel: User Info & Forms -->
+        <div class="w-full lg:w-1/3 p-6 md:p-8 bg-gray-50 flex flex-col space-y-6">
+            <h1 class="text-3xl font-bold text-center text-gray-900">Mess Management</h1>
+            <div id="user-info" class="p-4 bg-white rounded-xl shadow-sm border border-gray-200">
+                <p class="text-sm font-semibold text-gray-700">Your Profile ID:</p>
+                <code id="user-id-display" class="block mt-2 bg-gray-100 p-3 rounded-lg text-xs font-mono break-all text-gray-600">Loading...</code>
+                <p class="mt-2 text-xs text-gray-500">Share this ID with others to collaborate on the mess data.</p>
+                <button id="change-profile-btn" class="mt-4 w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-all duration-200">
+                    Change Profile
+                </button>
+            </div>
+            
+            <!-- Month Selector -->
+            <div class="p-6 bg-white rounded-xl shadow-md">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Select Month</h2>
+                <select id="month-selector" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200"></select>
+            </div>
+
+            <!-- Add/Edit Member Form -->
+            <div class="p-6 bg-white rounded-xl shadow-md">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Add/Update Member</h2>
+                <form id="member-form" class="space-y-4">
+                    <div>
+                        <label for="member-name" class="block text-sm font-medium text-gray-700">Member Name</label>
+                        <input type="text" id="member-name" name="memberName" placeholder="e.g., John Doe" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200" required>
+                    </div>
+                    <div>
+                        <label for="member-id" class="block text-sm font-medium text-gray-700">Member ID (Optional)</label>
+                        <input type="text" id="member-id" name="memberId" placeholder="User ID to link" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200">
+                        <p class="mt-1 text-xs text-gray-500">Leave blank to add a new member with a unique ID.</p>
+                    </div>
+                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                        Save Member
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Middle Panel: Meals & Deposits -->
+        <div class="w-full lg:w-1/3 p-6 md:p-8 bg-white flex flex-col space-y-6">
+            <!-- Tick-Based Meal Recording -->
+            <div class="p-6 bg-gray-50 rounded-xl shadow-md">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Record Meals by Tick</h2>
+                <div class="mb-4">
+                    <label for="meal-date-selector" class="block text-sm font-medium text-gray-700">Select Date</label>
+                    <input type="date" id="meal-date-selector" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200">
+                </div>
+                <div id="tick-meal-system" class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Lunch</th>
+                                <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Dinner</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tick-table-body" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">No members to show. Add a member.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Add Deposit Form -->
+            <div class="p-6 bg-gray-50 rounded-xl shadow-md">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Add Member Deposit</h2>
+                <form id="deposit-form" class="space-y-4">
+                    <div>
+                        <label for="deposit-member-id" class="block text-sm font-medium text-gray-700">Member</label>
+                        <select id="deposit-member-id" name="memberId" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200" required>
+                            <option value="">Select a member</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="deposit-amount" class="block text-sm font-medium text-gray-700">Deposit Amount</label>
+                        <input type="number" id="deposit-amount" name="depositAmount" placeholder="e.g., 5000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200" required>
+                    </div>
+                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                        Add Deposit
+                    </button>
+                </form>
+            </div>
+
+            <!-- Add Daily Cost Form -->
+            <div class="p-6 bg-gray-50 rounded-xl shadow-md">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Add Daily Cost</h2>
+                <form id="cost-form" class="space-y-4">
+                    <div>
+                        <label for="cost-amount" class="block text-sm font-medium text-gray-700">Cost Amount</label>
+                        <input type="number" id="cost-amount" name="costAmount" placeholder="e.g., 250" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200" required>
+                    </div>
+                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200">
+                        Add Cost
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Panel: Data Display & Summary -->
+        <div class="w-full lg:w-1/3 p-6 md:p-8 bg-white flex flex-col space-y-6 overflow-y-auto">
+            <!-- Monthly Summary -->
+            <div class="bg-gray-50 rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Monthly Summary</h2>
+                <div class="grid grid-cols-2 gap-4 text-center text-gray-800 mb-6">
+                    <div class="bg-blue-100 p-4 rounded-xl shadow-sm">
+                        <p class="text-sm font-medium">Total Meals</p>
+                        <p id="total-meals-count" class="text-2xl font-bold mt-1">0</p>
+                    </div>
+                    <div class="bg-red-100 p-4 rounded-xl shadow-sm">
+                        <p class="text-sm font-medium">Total Cost</p>
+                        <p id="total-cost" class="text-2xl font-bold mt-1">0</p>
+                    </div>
+                    <div class="bg-green-100 p-4 rounded-xl shadow-sm col-span-2">
+                        <p class="text-sm font-medium">Meal Rate (per meal)</p>
+                        <p id="meal-rate" class="text-2xl font-bold mt-1">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Member Balances -->
+            <div class="bg-gray-50 rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Member Balances</h2>
+                <div id="member-balances" class="space-y-3">
+                    <p class="text-gray-500">Add members to see balances.</p>
+                </div>
+            </div>
+
+            <!-- Members List & Meals Table -->
+            <div class="bg-gray-50 rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Mess Data</h2>
+                <div id="members-list" class="space-y-3 mb-6">
+                    <h3 class="font-medium text-gray-700">Members</h3>
+                    <p class="text-gray-500">No members added yet.</p>
+                </div>
+                <div id="meals-list" class="overflow-x-auto">
+                    <h3 class="font-medium text-gray-700 mb-2">All Meals Recorded</h3>
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="meals-table-body" class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No meals recorded yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp, setLogLevel } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, setDoc, collection, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+        // Set log level to debug for Firestore
+        setLogLevel('debug');
+
+        // --- Firebase Initialization ---
+        let app, auth, db, userId, currentProfileId, messProfileDocRef, currentMonthDocId, data;
+        let isAuthReady = false;
+        let selectedDate = new Date().toISOString().slice(0, 10);
+
+        // Your web app's Firebase configuration
+        const localFirebaseConfig = {
+            apiKey: "AIzaSyBlOyceVDZPihaL7JsHtFakjvtoPQjSLlE",
+            authDomain: "mess-49499.firebaseapp.com",
+            projectId: "mess-49499",
+            storageBucket: "mess-49499.firebasestorage.app",
+            messagingSenderId: "793949675740",
+            appId: "1:793949675740:web:ccd3ae3b0ca339d605d419"
+        };
+        const localInitialAuthToken = null;
+        const localAppId = 'mess-49499';
+
+        // 1. Get Firebase config from global variables or use local config as fallback
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : localFirebaseConfig;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : localInitialAuthToken;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : localAppId;
+
+        async function initializeFirebase() {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        isAuthReady = true;
+                        
+                        currentProfileId = localStorage.getItem('mess_profile_id');
+                        if (currentProfileId) {
+                            startAppWithProfile(currentProfileId);
+                        } else {
+                            showProfileManager();
+                        }
+                    } else {
+                        try {
+                            if (initialAuthToken) {
+                                await signInWithCustomToken(auth, initialAuthToken);
+                            } else {
+                                await signInAnonymously(auth);
+                            }
+                        } catch (e) {
+                            console.error("Error during authentication:", e);
+                        }
+                    }
+                });
+
+            } catch (e) {
+                console.error("Error initializing Firebase:", e);
+                document.getElementById('loading').innerHTML = `<p class="text-red-500">Error: Could not initialize app. Check the console for details.</p>`;
+            }
+        }
+
+        function showProfileManager() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('profile-manager').classList.remove('hidden');
+            document.getElementById('app').classList.add('hidden');
+        }
+
+        function showAppUI() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('profile-manager').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+        }
+
+        async function startAppWithProfile(profileId) {
+            if (!isAuthReady || !userId) {
+                console.error("Authentication not ready. Cannot start app.");
+                return;
+            }
+
+            currentProfileId = profileId;
+            localStorage.setItem('mess_profile_id', currentProfileId);
+            document.getElementById('user-id-display').textContent = currentProfileId;
+
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            currentMonthDocId = `${year}-${month}`;
+            
+            populateMonthSelector();
+            startRealtimeListener(currentMonthDocId);
+
+            showAppUI();
+        }
+
+        // --- Firestore Data Structure and Listeners ---
+        function startRealtimeListener(monthDocId) {
+            if (!isAuthReady || !currentProfileId) return;
+
+            // The root mess profile document stores non-monthly data like members.
+            // This is a new path to fix the bug.
+            messProfileDocRef = doc(collection(db, `artifacts/${appId}/users/${userId}/mess_profiles`), currentProfileId);
+            
+            // The monthly data is now in a subcollection under the profile.
+            const monthlyDataDocRef = doc(collection(messProfileDocRef, 'monthly_data'), monthDocId);
+            
+            // Listen to the main profile doc for members
+            onSnapshot(messProfileDocRef, (docSnap) => {
+                const profileData = docSnap.exists() ? docSnap.data() : { members: [] };
+                data = { ...data, members: profileData.members || [] };
+                // Rerender the parts of the UI that depend on members
+                renderUI(data);
+                renderTickSystem(data);
+            }, (error) => {
+                console.error("Error listening to profile document:", error);
+            });
+            
+            // Listen to the monthly data doc for meals and costs
+            onSnapshot(monthlyDataDocRef, (docSnap) => {
+                const monthlyData = docSnap.exists() ? docSnap.data() : { meals: [], dailyCosts: [] };
+                data = { ...data, meals: monthlyData.meals || [], dailyCosts: monthlyData.dailyCosts || [] };
+                
+                // Show the main UI and render the current state.
+                showAppUI();
+                renderUI(data);
+                renderTickSystem(data);
+                
+            }, (error) => {
+                console.error("Error listening to monthly document:", error);
+                const appDiv = document.getElementById('app');
+                const loadingDiv = document.getElementById('loading');
+                
+                if (appDiv) appDiv.classList.add('hidden');
+                if (loadingDiv) {
+                    loadingDiv.classList.remove('hidden');
+                    loadingDiv.innerHTML = `<p class="text-red-500">Error: Could not load data. Check the console for details.</p>`;
+                }
+            });
+        }
+
+        // --- UI Rendering Functions ---
+        function renderUI(data) {
+            const membersList = document.getElementById('members-list');
+            const mealsTableBody = document.getElementById('meals-table-body');
+            const depositMemberSelect = document.getElementById('deposit-member-id');
+            const totalMealsCount = document.getElementById('total-meals-count');
+            const totalCostDisplay = document.getElementById('total-cost');
+            const mealRateDisplay = document.getElementById('meal-rate');
+            const memberBalancesDiv = document.getElementById('member-balances');
+
+            // Render members and select options
+            membersList.innerHTML = '';
+            depositMemberSelect.innerHTML = '<option value="">Select a member</option>';
+            if (data.members && data.members.length > 0) {
+                data.members.forEach(member => {
+                    membersList.innerHTML += `
+                        <div class="p-4 bg-white rounded-lg shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold">${member.name}</p>
+                                <code class="block text-xs text-gray-500 break-all">${member.id}</code>
+                            </div>
+                            <button onclick="removeMember('${member.id}')" class="text-red-500 hover:text-red-700 transition-colors duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 11-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                    depositMemberSelect.innerHTML += `<option value="${member.id}">${member.name}</option>`;
+                });
+            } else {
+                 membersList.innerHTML = '<p class="text-gray-500">No members added yet.</p>';
+            }
+
+            // Render meals
+            mealsTableBody.innerHTML = '';
+            if (data.meals && data.meals.length > 0) {
+                // Sort meals by date descending
+                const sortedMeals = data.meals.sort((a, b) => new Date(b.date) - new Date(a.date));
+                sortedMeals.forEach(meal => {
+                    const memberName = data.members.find(m => m.id === meal.memberId)?.name || 'Unknown';
+                    const mealDate = new Date(meal.date).toLocaleDateString();
+                    const mealTime = new Date(meal.date).toLocaleTimeString();
+                    mealsTableBody.innerHTML += `
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${memberName}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${meal.type}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${mealDate} ${mealTime}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button onclick="removeMeal('${meal.id}')" class="text-red-500 hover:text-red-700 transition-colors duration-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 11-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                 mealsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No meals recorded yet.</td>
+                    </tr>
+                `;
+            }
+            totalMealsCount.textContent = data.meals ? data.meals.length : 0;
+            
+            // Calculate and display summary
+            const { totalMeals, totalCost, mealRate, balances } = calculateMonthlySummary(data);
+            totalMealsCount.textContent = totalMeals;
+            totalCostDisplay.textContent = totalCost.toFixed(2);
+            mealRateDisplay.textContent = mealRate.toFixed(2);
+            
+            // Render member balances
+            memberBalancesDiv.innerHTML = '';
+            if (Object.keys(balances).length > 0) {
+                data.members.forEach(member => {
+                    const balance = balances[member.id];
+                    const color = balance < 0 ? 'text-red-600' : 'text-green-600';
+                    const icon = balance < 0 ? '💸' : '💰';
+                    const message = balance < 0 ? `Owes ${Math.abs(balance).toFixed(2)}` : `Owed ${balance.toFixed(2)}`;
+
+                    memberBalancesDiv.innerHTML += `
+                        <div class="p-4 bg-white rounded-lg shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold">${member.name}</p>
+                                <p class="text-xs text-gray-500">Deposit: ${member.deposit || 0}</p>
+                                <p class="text-xs text-gray-500">Meals: ${member.meals}</p>
+                                <p class="text-xs text-gray-500">Meal Cost: ${member.totalMealCost ? member.totalMealCost.toFixed(2) : '0.00'}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs font-semibold ${color}">${icon} ${message}</p>
+                                <p class="text-sm ${color}">${balance.toFixed(2)}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                 memberBalancesDiv.innerHTML = '<p class="text-gray-500">Add members to see balances.</p>';
+            }
+        }
+        
+        function renderTickSystem(data) {
+            const tickTableBody = document.getElementById('tick-table-body');
+            tickTableBody.innerHTML = '';
+            const mealTypes = ['Lunch', 'Dinner'];
+
+            if (!data.members || data.members.length === 0) {
+                tickTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">No members to show. Add a member.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            data.members.forEach(member => {
+                const memberMealsForDate = (data.meals || []).filter(meal => {
+                    const mealDate = new Date(meal.date).toISOString().slice(0, 10);
+                    return meal.memberId === member.id && mealDate === selectedDate;
+                });
+                
+                const memberRow = document.createElement('tr');
+                memberRow.innerHTML = `
+                    <td class="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${member.name}</td>
+                    ${mealTypes.map(type => {
+                        const hasMeal = memberMealsForDate.some(meal => meal.type === type);
+                        const bgColor = hasMeal ? 'bg-green-500' : 'bg-gray-300';
+                        const icon = hasMeal ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>` : `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>`;
+                        return `
+                            <td class="px-3 py-4 whitespace-nowrap text-center">
+                                <div onclick="toggleMeal('${member.id}', '${type}', '${selectedDate}')" class="meal-tick ${bgColor}">
+                                    ${icon}
+                                </div>
+                            </td>
+                        `;
+                    }).join('')}
+                `;
+                tickTableBody.appendChild(memberRow);
+            });
+        }
+        
+        // --- Data Manipulation Functions ---
+        async function updateMessData(newData) {
+            if (!isAuthReady || !currentProfileId || !userId) return;
+            try {
+                // Update the correct document based on the current month
+                const monthlyDataDocRef = doc(collection(messProfileDocRef, 'monthly_data'), currentMonthDocId);
+                // FIX: Use { merge: true } to prevent overwriting other fields in the document
+                await setDoc(monthlyDataDocRef, newData, { merge: true });
+            } catch (e) {
+                console.error("Error updating document:", e);
+                // In a real app, you would show a message to the user here.
+            }
+        }
+        
+        // This function now only updates the members array, which is stored in the root profile document.
+        async function addMember(name, memberId) {
+            try {
+                const members = data.members || [];
+                const newMember = { id: memberId, name: name, deposit: 0 };
+
+                const existingMemberIndex = members.findIndex(m => m.id === memberId);
+                if (existingMemberIndex !== -1) {
+                    members[existingMemberIndex] = { ...members[existingMemberIndex], ...newMember };
+                } else {
+                    members.push(newMember);
+                }
+                
+                await setDoc(messProfileDocRef, { members: members }, { merge: true });
+            } catch (e) {
+                console.error("Error adding member:", e);
+            }
+        }
+        
+        async function addDeposit(memberId, amount) {
+            try {
+                const members = data.members || [];
+                const memberIndex = members.findIndex(m => m.id === memberId);
+                if (memberIndex !== -1) {
+                    members[memberIndex].deposit = (members[memberIndex].deposit || 0) + amount;
+                }
+                
+                // Deposits are now saved to the root profile document, not the monthly one.
+                await setDoc(messProfileDocRef, { members: members }, { merge: true });
+            } catch (e) {
+                console.error("Error adding deposit:", e);
+            }
+        }
+        
+        async function addDailyCost(amount) {
+            try {
+                const dailyCosts = data.dailyCosts || [];
+                dailyCosts.push({ date: new Date().toISOString(), amount: amount });
+                
+                await updateMessData({ dailyCosts: dailyCosts });
+            } catch (e) {
+                console.error("Error adding daily cost:", e);
+            }
+        }
+
+        async function removeMember(id) {
+            try {
+                const updatedMembers = (data.members || []).filter(m => m.id !== id);
+                await setDoc(messProfileDocRef, { members: updatedMembers }, { merge: true });
+            } catch (e) {
+                console.error("Error removing member:", e);
+            }
+        }
+        
+        async function toggleMeal(memberId, mealType, mealDate) {
+            try {
+                const meals = data.meals || [];
+                const mealDateISO = new Date(mealDate).toISOString().slice(0, 10);
+                
+                const existingMealIndex = meals.findIndex(meal => 
+                    meal.memberId === memberId && 
+                    meal.type === mealType && 
+                    new Date(meal.date).toISOString().slice(0, 10) === mealDateISO
+                );
+
+                if (existingMealIndex !== -1) {
+                    // Meal exists, remove it
+                    meals.splice(existingMealIndex, 1);
+                } else {
+                    // Meal does not exist, add it
+                    const newMeal = {
+                        id: crypto.randomUUID(),
+                        memberId: memberId,
+                        type: mealType,
+                        date: new Date(mealDate).toISOString()
+                    };
+                    meals.push(newMeal);
+                }
+
+                await updateMessData({ meals: meals });
+            } catch (e) {
+                console.error("Error toggling meal:", e);
+            }
+        }
+
+        async function removeMeal(id) {
+            try {
+                const updatedMeals = (data.meals || []).filter(m => m.id !== id);
+                await updateMessData({ meals: updatedMeals });
+            } catch (e) {
+                console.error("Error removing meal:", e);
+            }
+        }
+        
+        function calculateMonthlySummary(data) {
+            const meals = data.meals || [];
+            const dailyCosts = data.dailyCosts || [];
+            const members = data.members || [];
+
+            // 1. Calculate total meals
+            const totalMeals = meals.length;
+
+            // 2. Calculate total cost
+            const totalCost = dailyCosts.reduce((sum, cost) => sum + cost.amount, 0);
+
+            // 3. Calculate meal rate
+            const mealRate = totalMeals > 0 ? totalCost / totalMeals : 0;
+
+            // 4. Calculate individual member balances
+            const memberMealCounts = meals.reduce((counts, meal) => {
+                counts[meal.memberId] = (counts[meal.memberId] || 0) + 1;
+                return counts;
+            }, {});
+
+            const balances = {};
+            members.forEach(member => {
+                const memberMeals = memberMealCounts[member.id] || 0;
+                const totalMealCost = memberMeals * mealRate;
+                const balance = (member.deposit || 0) - totalMealCost;
+                balances[member.id] = balance;
+                member.meals = memberMeals;
+                member.totalMealCost = totalMealCost;
+            });
+            
+            return { totalMeals, totalCost, mealRate, balances };
+        }
+        
+        function populateMonthSelector() {
+            const selector = document.getElementById('month-selector');
+            const today = new Date();
+            selector.innerHTML = '';
+            for (let i = 0; i < 6; i++) {
+                const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const monthName = date.toLocaleString('default', { month: 'long' });
+                const option = document.createElement('option');
+                option.value = `${year}-${month}`;
+                option.textContent = `${monthName} ${year}`;
+                selector.appendChild(option);
+            }
+            const dateInput = document.getElementById('meal-date-selector');
+            selector.value = currentMonthDocId;
+            selector.addEventListener('change', (e) => {
+                currentMonthDocId = e.target.value;
+                dateInput.value = new Date().toISOString().slice(0, 10);
+                startRealtimeListener(currentMonthDocId);
+            });
+            dateInput.value = selectedDate;
+            dateInput.addEventListener('change', (e) => {
+                selectedDate = e.target.value;
+                renderTickSystem(data);
+            });
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('member-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const memberName = document.getElementById('member-name').value;
+            const inputMemberId = document.getElementById('member-id').value;
+            const memberId = inputMemberId || crypto.randomUUID(); 
+            if (memberName) {
+                addMember(memberName, memberId);
+                this.reset();
+            }
+        });
+        
+        document.getElementById('deposit-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const memberId = document.getElementById('deposit-member-id').value;
+            const depositAmount = parseFloat(document.getElementById('deposit-amount').value);
+            if (memberId && depositAmount) {
+                addDeposit(memberId, depositAmount);
+                this.reset();
+            }
+        });
+        
+        document.getElementById('cost-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const costAmount = parseFloat(document.getElementById('cost-amount').value);
+            if (costAmount) {
+                addDailyCost(costAmount);
+                this.reset();
+            }
+        });
+
+        document.getElementById('create-profile-btn').addEventListener('click', () => {
+            const newProfileId = crypto.randomUUID();
+            startAppWithProfile(newProfileId);
+        });
+
+        document.getElementById('load-profile-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const profileId = document.getElementById('profile-id-input').value;
+            if (profileId) {
+                startAppWithProfile(profileId);
+            }
+        });
+
+        document.getElementById('change-profile-btn').addEventListener('click', () => {
+            localStorage.removeItem('mess_profile_id');
+            showProfileManager();
+        });
+
+
+        // Expose functions to the global scope for use in `onclick` attributes
+        window.removeMember = removeMember;
+        window.removeMeal = removeMeal;
+        window.toggleMeal = toggleMeal;
+
+        // Start the application
+        initializeFirebase();
+
+    </script>
+</body>
+</html>
